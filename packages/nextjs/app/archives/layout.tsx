@@ -5,8 +5,8 @@ export const metadata = getMetadata({
   description: "All grouped memories created by the community",
 });
 
-const NewArchiveLayout = ({ children }: { children: React.ReactNode }) => {
+const ArchivesLayout = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-export default NewArchiveLayout;
+export default ArchivesLayout;

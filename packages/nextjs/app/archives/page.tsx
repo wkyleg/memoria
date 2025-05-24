@@ -46,12 +46,7 @@ export default function CreateArchivePage() {
       illustration: formData.illustration,
     };
 
-    try {
-      await addArchive(newArchive);
-      router.push(`/archives`);
-    } catch (error) {
-      console.error("Error creating archive:", error);
-    }
+    await addArchive(newArchive);
 
     router.push(`/archives`);
   };
