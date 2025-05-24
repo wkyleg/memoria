@@ -1,5 +1,16 @@
-# 🏗 Scaffold-ETH 2
+# Memoria
 
+Memoria is a decentralized memory archive system designed at the ETH Dublin Hackathon 2025. The project allows communities to preserve memories—such as stories, images, songs, recipes, and more—permanently on-chain and on Arweave.
+
+## 🌍 Why It Matters
+
+Across many parts of the world, local histories are often erased, censored, or forgotten. Centralized storage (governments, media, museums) frequently fails to preserve emotional, oral, and grassroots stories. CapsuleChain enables decentralized, trust-anchored preservation of human memory stored permanently on Arweave. 
+
+Memoria allowed patrons to create Archives and reward contributors for contributions. The Archives will be ERC-115 compliant and varyingly interchangable with fungible and non-fungible token standards. 
+
+For example, Irish language usage has declined precipitously. With Memoria, Patrons could incentive collection of audio, visual, cultural artifacts associated with rare dialects of the Irish Language.
+
+#### Starter Docs
 <h4 align="center">
   <a href="https://docs.scaffoldeth.io">Documentation</a> |
   <a href="https://scaffoldeth.io">Website</a>

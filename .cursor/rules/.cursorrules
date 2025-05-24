@@ -1,0 +1,35 @@
+# Cursor Rules File
+# Project: CapsuleChain
+# Last Updated: 2025-05-24
+
+# Root directory for the Cursor assistant
+root = "."
+
+# General Guidelines
+[general]
+language = "Solidity, TypeScript"
+framework = "eth-scaffold, Next.js"
+description = "This is a decentralized archival system for community memories using Arweave and Ethereum smart contracts."
+
+# Directories to ignore
+ignore = [
+  "node_modules",
+  "out",
+  "artifacts",
+  ".git",
+  "cache",
+  "test"
+]
+
+# Coding Style
+[coding_style]
+solidity_version = "0.8.24"
+linter = "solhint"
+formatter = "prettier"
+naming_convention = "camelCase for variables/functions, PascalCase for contracts/types"
+
+# Goals
+[goals]
+- Build an ArchiveFactory and Archive smart contract system
+- Integrate Arweave for permanent storage of memories
+- Basic frontend for uploading and browsing
