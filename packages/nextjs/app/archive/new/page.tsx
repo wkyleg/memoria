@@ -48,11 +48,11 @@ export default function CreateArchivePage() {
 
     await addArchive(newArchive);
 
-    router.push(`/archives`);
+    router.push("/archive/list");
   };
 
   const handleBack = () => {
-    router.back();
+    router.push("/archives");
   };
 
   return (
@@ -62,7 +62,7 @@ export default function CreateArchivePage() {
       <div className="relative max-w-4xl mx-auto p-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
-          <button onClick={handleBack} className="text-gray-400 hover:text-amber-400">
+          <button type="button" onClick={handleBack} className="text-gray-400 hover:text-amber-400">
             <ArrowLeftIcon className="w-5 h-5 mr-2" />
             Back
           </button>
@@ -143,7 +143,7 @@ export default function CreateArchivePage() {
 
                 <button
                   type="submit"
-                  className="btn btn-lg bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-gray-900 font-semibold px-8 py-4 text-"
+                  className="btn btn-lg bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-gray-900 font-semibold px-8 py-4"
                 >
                   Create
                 </button>
