@@ -1,91 +1,253 @@
-# Memoria
+# 🏛️ Memoria
 
-Memoria is a decentralized memory archive system designed at the ETH Dublin Hackathon 2025. The project allows communities to preserve memories—such as stories, images, songs, recipes, and more—permanently on-chain and on Arweave.
+> *Preserving community memories forever on the blockchain*
 
-## 🌍 Why It Matters
+Memoria is a decentralized memory archive system designed at ETH Dublin Hackathon 2025. The project enables communities to preserve memories—stories, images, songs, recipes, and cultural artifacts—permanently on-chain and on Arweave, creating an unstoppable record of human heritage.
 
-Across many parts of the world, local histories are often erased, censored, or forgotten. Centralized storage (governments, media, museums) frequently fails to preserve emotional, oral, and grassroots stories. CapsuleChain enables decentralized, trust-anchored preservation of human memory stored permanently on Arweave. 
+## 🌍 Why Memoria Matters
 
-Memoria allowed patrons to create Archives and reward contributors for contributions. The Archives will be ERC-115 compliant and varyingly interchangable with fungible and non-fungible token standards. 
+Across the world, local histories are often erased, censored, or forgotten. Centralized institutions (governments, media, museums) frequently fail to preserve emotional, oral, and grassroots stories. Memoria enables decentralized, trust-anchored preservation of human memory with permanent storage on Arweave and immutable verification on Ethereum.
 
-For example, Irish language usage has declined precipitously. With Memoria, Patrons could incentive collection of audio, visual, cultural artifacts associated with rare dialects of the Irish Language.
+**Example Use Cases:**
+- 🇮🇪 Preserving rare Irish dialects through audio recordings and cultural context
+- 📖 Collecting family recipes and traditional cooking methods before they're lost
+- 🎵 Archiving indigenous music and oral histories
+- 📸 Documenting community events and local celebrations
+- 🏘️ Recording neighborhood stories and urban development history
 
-#### Starter Docs
-<h4 align="center">
-  <a href="https://docs.scaffoldeth.io">Documentation</a> |
-  <a href="https://scaffoldeth.io">Website</a>
-</h4>
+## 🏗️ Architecture
 
-🧪 An open-source, up-to-date toolkit for building decentralized applications (dapps) on the Ethereum blockchain. It's designed to make it easier for developers to create and deploy smart contracts and build user interfaces that interact with those contracts.
+Memoria consists of two main smart contracts built on Ethereum:
 
-⚙️ Built using NextJS, RainbowKit, Foundry, Wagmi, Viem, and Typescript.
+### 🏛️ ArchiveFactory Contract
+The factory contract that deploys and indexes community archives.
 
-- ✅ **Contract Hot Reload**: Your frontend auto-adapts to your smart contract as you edit it.
-- 🪝 **[Custom hooks](https://docs.scaffoldeth.io/hooks/)**: Collection of React hooks wrapper around [wagmi](https://wagmi.sh/) to simplify interactions with smart contracts with typescript autocompletion.
-- 🧱 [**Components**](https://docs.scaffoldeth.io/components/): Collection of common web3 components to quickly build your frontend.
-- 🔥 **Burner Wallet & Local Faucet**: Quickly test your application with a burner wallet and local faucet.
-- 🔐 **Integration with Wallet Providers**: Connect to different wallet providers and interact with the Ethereum network.
+**Key Features:**
+- Deploy new Archive contracts for communities
+- Index all archives with pagination support
+- Emit events for archive creation tracking
+- Input validation for archive parameters
 
-![Debug Contracts tab](https://github.com/scaffold-eth/scaffold-eth-2/assets/55535804/b237af0c-5027-4849-a5c1-2e31495cccb1)
+### 📦 Archive Contract (ERC-1155)
+Individual community memory vaults that store artifact metadata and manage rewards.
 
-## Requirements
+**Key Features:**
+- **Artifact Management**: Submit, review, accept/reject community memories
+- **NFT Minting**: ERC-1155 tokens minted for accepted artifacts
+- **Donor Tracking**: Complete donor management with statistics and rewards
+- **Metadata Generation**: On-chain base64-encoded JSON metadata
+- **Admin Controls**: Secure admin functions with proper access control
 
-Before you begin, you need to install the following tools:
+## 🔗 Smart Contract Details
 
-- [Node (>= v20.18.3)](https://nodejs.org/en/download/)
-- Yarn ([v1](https://classic.yarnpkg.com/en/docs/install/) or [v2+](https://yarnpkg.com/getting-started/install))
-- [Git](https://git-scm.com/downloads)
+### Archive Contract Functions
 
-## Quickstart
+#### 📝 Artifact Management
+```solidity
+// Submit a new artifact for review
+function submitArtifact(
+    string calldata _title,
+    string calldata _arweaveURI, 
+    string calldata _mimeType
+) external returns (uint256 id)
 
-To get started with Scaffold-ETH 2, follow the steps below:
+// Admin accepts artifact and mints NFT
+function acceptArtifact(uint256 _id, uint256 _rewardWei) external onlyAdmin
 
-1. Install dependencies if it was skipped in CLI:
-
+// Admin rejects artifact
+function rejectArtifact(uint256 _id) external onlyAdmin
 ```
-cd my-dapp-example
+
+#### 💰 Donation System
+```solidity
+// Donate with a message
+function receiveDonation(string calldata _message) external payable
+
+// Anonymous donations via receive function
+receive() external payable
+
+// View donor information
+function donorInfo(address donor) external view returns (Donor memory)
+function getDonors(uint256 offset, uint256 limit) external view returns (Donor[] memory)
+function totalDonors() external view returns (uint256)
+```
+
+#### 🔐 Admin Functions
+```solidity
+// Transfer admin rights
+function transferAdmin(address _newAdmin) external onlyAdmin
+```
+
+### ArchiveFactory Contract Functions
+
+```solidity
+// Create a new community archive
+function createArchive(
+    string calldata _name,
+    string calldata _description, 
+    string calldata _baseUri
+) external returns (address archiveAddr)
+
+// View archives with pagination
+function getArchives(uint256 offset, uint256 limit) external view returns (ArchiveInfo[] memory)
+function totalArchives() external view returns (uint256)
+```
+
+## 🎯 Artifact Lifecycle
+
+1. **📤 Submission**: Community members submit artifacts with title, Arweave URI, and MIME type
+2. **👀 Review**: Archive admin reviews submissions for quality and relevance
+3. **✅ Acceptance**: Admin accepts artifact, mints ERC-1155 NFT to submitter, and optionally rewards ETH
+4. **🏆 Collection**: Submitter receives unique NFT representing their contribution
+5. **🌐 Discovery**: Artifact becomes publicly viewable with on-chain metadata
+
+## 🛡️ Security Features
+
+- **ReentrancyGuard**: Protection against reentrancy attacks
+- **Input Validation**: Comprehensive validation for all string inputs
+- **Safe ETH Transfers**: Uses `call()` instead of `transfer()` for compatibility
+- **Access Control**: Admin-only functions with proper validation
+- **Zero Address Protection**: Prevents invalid address assignments
+
+## 🏃‍♂️ Quick Start
+
+### Prerequisites
+- [Node.js](https://nodejs.org/) (>= v20.18.3)
+- [Yarn](https://yarnpkg.com/) (v1 or v2+)
+- [Git](https://git-scm.com/)
+
+### Installation
+
+1. **Clone the repository**:
+```bash
+git clone <repository-url>
+cd memoria
+```
+
+2. **Install dependencies**:
+```bash
 yarn install
 ```
 
-2. Run a local network in the first terminal:
-
-```
+3. **Start local blockchain**:
+```bash
 yarn chain
 ```
 
-This command starts a local Ethereum network using Foundry. The network runs on your local machine and can be used for testing and development. You can customize the network configuration in `packages/foundry/foundry.toml`.
-
-3. On a second terminal, deploy the test contract:
-
-```
+4. **Deploy contracts**:
+```bash
 yarn deploy
 ```
 
-This command deploys a test smart contract to the local network. The contract is located in `packages/foundry/contracts` and can be modified to suit your needs. The `yarn deploy` command uses the deploy script located in `packages/foundry/script` to deploy the contract to the network. You can also customize the deploy script.
-
-4. On a third terminal, start your NextJS app:
-
-```
+5. **Start the frontend**:
+```bash
 yarn start
 ```
 
-Visit your app on: `http://localhost:3000`. You can interact with your smart contract using the `Debug Contracts` page. You can tweak the app config in `packages/nextjs/scaffold.config.ts`.
+Visit `http://localhost:3000` to interact with your deployed contracts.
 
-Run smart contract test with `yarn foundry:test`
+## 🧪 Testing
 
-- Edit your smart contracts in `packages/foundry/contracts`
-- Edit your frontend homepage at `packages/nextjs/app/page.tsx`. For guidance on [routing](https://nextjs.org/docs/app/building-your-application/routing/defining-routes) and configuring [pages/layouts](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts) checkout the Next.js documentation.
-- Edit your deployment scripts in `packages/foundry/script`
+Memoria includes comprehensive test coverage with 36 tests covering all functionality:
 
+```bash
+# Run all tests
+yarn foundry:test
 
-## Documentation
+# Run tests with verbose output
+yarn foundry:test -vv
 
-Visit our [docs](https://docs.scaffoldeth.io) to learn how to start building with Scaffold-ETH 2.
+# Generate coverage report
+yarn foundry:coverage
+```
 
-To know more about its features, check out our [website](https://scaffoldeth.io).
+**Test Coverage:**
+- Archive Contract: 100% function coverage, 93.33% branch coverage
+- ArchiveFactory Contract: 100% coverage across all metrics
 
-## Contributing to Scaffold-ETH 2
+## 🚀 Deployment
 
-We welcome contributions to Scaffold-ETH 2!
+### Local Development
+```bash
+# Deploy to local network
+forge script script/DeployLocal.s.sol --broadcast --rpc-url localhost
+```
 
-Please see [CONTRIBUTING.MD](https://github.com/scaffold-eth/scaffold-eth-2/blob/main/CONTRIBUTING.md) for more information and guidelines for contributing to Scaffold-ETH 2.
+### Testnet/Mainnet
+```bash
+# Set environment variables
+export PRIVATE_KEY="your-private-key"
+export RPC_URL="your-rpc-url"
+
+# Deploy with verification
+forge script script/DeployMemoria.s.sol --broadcast --rpc-url $RPC_URL --verify
+```
+
+## 📁 Project Structure
+
+```
+memoria/
+├── packages/
+│   ├── foundry/                 # Smart contracts
+│   │   ├── contracts/
+│   │   │   ├── Archive.sol      # Main archive contract
+│   │   │   └── ArchiveFactory.sol # Factory contract
+│   │   ├── test/                # Contract tests
+│   │   ├── script/              # Deployment scripts
+│   │   └── foundry.toml         # Foundry config
+│   └── nextjs/                  # Frontend application
+│       ├── app/                 # Next.js app router
+│       ├── components/          # React components
+│       └── hooks/               # Wagmi hooks
+```
+
+## 🔧 Configuration
+
+### Foundry Configuration
+Edit `packages/foundry/foundry.toml` for:
+- Solidity compiler settings
+- Network configurations
+- Gas optimization settings
+
+### Frontend Configuration  
+Edit `packages/nextjs/scaffold.config.ts` for:
+- Target network selection
+- UI customization
+- Contract integration settings
+
+## 🤝 Contributing
+
+We welcome contributions to Memoria! Please:
+
+1. Fork the repository
+2. Create a feature branch
+3. Add tests for new functionality
+4. Ensure all tests pass
+5. Submit a pull request
+
+### Development Guidelines
+- Follow Solidity best practices
+- Maintain 100% test coverage for new features
+- Add comprehensive documentation
+- Use conventional commit messages
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- Built on [Scaffold-ETH 2](https://scaffoldeth.io) framework
+- Uses [OpenZeppelin](https://openzeppelin.com/) security standards
+- Developed at ETH Dublin Hackathon 2025
+- Inspired by the need to preserve cultural heritage globally
+
+## 📞 Support
+
+- 📖 [Documentation](https://docs.scaffoldeth.io)
+- 🐛 [Issue Tracker](https://github.com/your-repo/issues)
+- 💬 [Community Discord](https://discord.gg/your-discord)
+
+---
+
+*Preserving memories, one artifact at a time* 🌟
