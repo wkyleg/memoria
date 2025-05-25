@@ -20,6 +20,12 @@ Across the world, local histories are often erased, censored, or forgotten. Cent
 - 📸 Documenting community events and local celebrations
 - 🏘️ Recording neighborhood stories and urban development history
 
+## Roadmap
+
+Our goal is to create a public goods incentive structure to fund cultural preservation. Users who build archives can receive donations from other users, and use the donations to directly fund artifacts/memories submitted to Arweave. This model fosters greater transparency, and more easily funds those directly involved in cultural preservation.
+
+Also, the donors and participants in this project will receive ERC-1155 NFTs minted to them as backers of the archives, and do function as a badge for supporting the project
+
 ## 🏗️ Architecture
 
 Memoria consists of two main smart contracts built on Ethereum:
