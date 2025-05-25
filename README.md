@@ -1,16 +1,19 @@
 # 🏛️ Memoria
 
-> *Preserving community memories forever on the blockchain*
+> _Preserving community memories forever on the blockchain_
 
 Memoria is a decentralized memory archive system designed at ETH Dublin Hackathon 2025. The project enables communities to preserve memories—stories, images, songs, recipes, and cultural artifacts—permanently on-chain and on Arweave, creating an unstoppable record of human heritage.
 
 It's live [here](https://memoria-silk.vercel.app/)
+
+You can check out [the archives here](https://memoria-silk.vercel.app/archive/list) or [you can check out the memories in an archive here](https://memoria-silk.vercel.app/archive/0x804bd3020d20Ba0192a90F8CFcfa34609F0A25c6)
 
 ## 🌍 Why Memoria Matters
 
 Across the world, local histories are often erased, censored, or forgotten. Centralized institutions (governments, media, museums) frequently fail to preserve emotional, oral, and grassroots stories. Memoria enables decentralized, trust-anchored preservation of human memory with permanent storage on Arweave and immutable verification on Ethereum.
 
 **Example Use Cases:**
+
 - 🇮🇪 Preserving rare Irish dialects through audio recordings and cultural context
 - 📖 Collecting family recipes and traditional cooking methods before they're lost
 - 🎵 Archiving indigenous music and oral histories
@@ -22,18 +25,22 @@ Across the world, local histories are often erased, censored, or forgotten. Cent
 Memoria consists of two main smart contracts built on Ethereum:
 
 ### 🏛️ ArchiveFactory Contract
+
 The factory contract that deploys and indexes community archives.
 
 **Key Features:**
+
 - Deploy new Archive contracts for communities
 - Index all archives with pagination support
 - Emit events for archive creation tracking
 - Input validation for archive parameters
 
 ### 📦 Archive Contract (ERC-1155)
+
 Individual community memory vaults that store artifact metadata and manage rewards.
 
 **Key Features:**
+
 - **Artifact Management**: Submit, review, accept/reject community memories
 - **NFT Minting**: ERC-1155 tokens minted for accepted artifacts
 - **Donor Tracking**: Complete donor management with statistics and rewards
@@ -47,11 +54,12 @@ You can view our contracts live on [Etherscan Sepolia](https://sepolia.etherscan
 ### Archive Contract Functions
 
 #### 📝 Artifact Management
+
 ```solidity
 // Submit a new artifact for review
 function submitArtifact(
     string calldata _title,
-    string calldata _arweaveURI, 
+    string calldata _arweaveURI,
     string calldata _mimeType
 ) external returns (uint256 id)
 
@@ -63,6 +71,7 @@ function rejectArtifact(uint256 _id) external onlyAdmin
 ```
 
 #### 💰 Donation System
+
 ```solidity
 // Donate with a message
 function receiveDonation(string calldata _message) external payable
@@ -77,6 +86,7 @@ function totalDonors() external view returns (uint256)
 ```
 
 #### 🔐 Admin Functions
+
 ```solidity
 // Transfer admin rights
 function transferAdmin(address _newAdmin) external onlyAdmin
@@ -88,7 +98,7 @@ function transferAdmin(address _newAdmin) external onlyAdmin
 // Create a new community archive
 function createArchive(
     string calldata _name,
-    string calldata _description, 
+    string calldata _description,
     string calldata _baseUri
 ) external returns (address archiveAddr)
 
@@ -116,6 +126,7 @@ function totalArchives() external view returns (uint256)
 ## 🏃‍♂️ Quick Start
 
 ### Prerequisites
+
 - [Node.js](https://nodejs.org/) (>= v20.18.3)
 - [Yarn](https://yarnpkg.com/) (v1 or v2+)
 - [Git](https://git-scm.com/)
@@ -123,27 +134,32 @@ function totalArchives() external view returns (uint256)
 ### Installation
 
 1. **Clone the repository**:
+
 ```bash
 git clone <repository-url>
 cd memoria
 ```
 
 2. **Install dependencies**:
+
 ```bash
 yarn install
 ```
 
 3. **Start local blockchain**:
+
 ```bash
 yarn chain
 ```
 
 4. **Deploy contracts**:
+
 ```bash
 yarn deploy
 ```
 
 5. **Start the frontend**:
+
 ```bash
 yarn start
 ```
@@ -166,18 +182,21 @@ yarn foundry:coverage
 ```
 
 **Test Coverage:**
+
 - Archive Contract: 100% function coverage, 93.33% branch coverage
 - ArchiveFactory Contract: 100% coverage across all metrics
 
 ## 🚀 Deployment
 
 ### Local Development
+
 ```bash
 # Deploy to local network
 forge script script/DeployLocal.s.sol --broadcast --rpc-url localhost
 ```
 
 ### Testnet/Mainnet
+
 ```bash
 # Set environment variables
 export PRIVATE_KEY="your-private-key"
@@ -208,13 +227,17 @@ memoria/
 ## 🔧 Configuration
 
 ### Foundry Configuration
+
 Edit `packages/foundry/foundry.toml` for:
+
 - Solidity compiler settings
 - Network configurations
 - Gas optimization settings
 
-### Frontend Configuration  
+### Frontend Configuration
+
 Edit `packages/nextjs/scaffold.config.ts` for:
+
 - Target network selection
 - UI customization
 - Contract integration settings
@@ -230,6 +253,7 @@ We welcome contributions to Memoria! Please:
 5. Submit a pull request
 
 ### Development Guidelines
+
 - Follow Solidity best practices
 - Maintain 100% test coverage for new features
 - Add comprehensive documentation
@@ -254,7 +278,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-*Preserving memories, one artifact at a time* 🌟
+_Preserving memories, one artifact at a time_ 🌟
 
 ---
 
@@ -290,10 +314,11 @@ contract ArchiveFactory {
 ### 🔧 Functions
 
 #### `createArchive`
+
 ```solidity
 function createArchive(
     string calldata _name,
-    string calldata _description, 
+    string calldata _description,
     string calldata _baseUri
 ) external returns (address archiveAddr)
 ```
@@ -301,11 +326,13 @@ function createArchive(
 **Description**: Creates a new Archive contract for a community. The caller automatically becomes the admin.
 
 **Parameters**:
+
 - `_name` (string): Human-readable name of the archive (e.g., "Dublin Folk Memories")
 - `_description` (string): Short description shown in UI (e.g., "Preserving stories from Dublin's communities")
 - `_baseUri` (string): ERC-1155 base URI (optional, can be empty string)
 
 **Returns**:
+
 - `archiveAddr` (address): Address of the newly deployed Archive contract
 
 **Access Control**: Public - anyone can create an archive
@@ -313,17 +340,19 @@ function createArchive(
 **Gas Cost**: ~2,100,000 gas (deploys new contract)
 
 **Requirements**:
+
 - `_name` must not be empty string
 - Will revert if deployment fails
 
 **Events Emitted**: `ArchiveCreated(address indexed archive, string name, address indexed admin)`
 
 **Example Usage**:
+
 ```javascript
 const tx = await archiveFactory.createArchive(
-    "Dublin Folk Memories",
-    "Preserving stories from Dublin's communities",
-    ""
+  "Dublin Folk Memories",
+  "Preserving stories from Dublin's communities",
+  ""
 );
 const receipt = await tx.wait();
 const archiveAddress = receipt.events[0].args.archive;
@@ -332,6 +361,7 @@ const archiveAddress = receipt.events[0].args.archive;
 ---
 
 #### `totalArchives`
+
 ```solidity
 function totalArchives() external view returns (uint256)
 ```
@@ -341,6 +371,7 @@ function totalArchives() external view returns (uint256)
 **Parameters**: None
 
 **Returns**:
+
 - `uint256`: Total count of deployed archives
 
 **Access Control**: Public view
@@ -348,6 +379,7 @@ function totalArchives() external view returns (uint256)
 **Gas Cost**: ~2,400 gas
 
 **Example Usage**:
+
 ```javascript
 const total = await archiveFactory.totalArchives();
 console.log(`Total archives: ${total}`);
@@ -356,6 +388,7 @@ console.log(`Total archives: ${total}`);
 ---
 
 #### `archives` (Array Getter)
+
 ```solidity
 function archives(uint256 index) external view returns (address)
 ```
@@ -363,9 +396,11 @@ function archives(uint256 index) external view returns (address)
 **Description**: Public array getter to access archive addresses by index.
 
 **Parameters**:
+
 - `index` (uint256): Zero-based index in the archives array
 
 **Returns**:
+
 - `address`: Archive contract address at the given index
 
 **Access Control**: Public view
@@ -373,9 +408,11 @@ function archives(uint256 index) external view returns (address)
 **Gas Cost**: ~2,600 gas
 
 **Requirements**:
+
 - `index` must be less than `totalArchives()`
 
 **Example Usage**:
+
 ```javascript
 // Get the first archive
 const firstArchive = await archiveFactory.archives(0);
@@ -384,7 +421,7 @@ const firstArchive = await archiveFactory.archives(0);
 const total = await archiveFactory.totalArchives();
 const allArchives = [];
 for (let i = 0; i < total; i++) {
-    allArchives.push(await archiveFactory.archives(i));
+  allArchives.push(await archiveFactory.archives(i));
 }
 ```
 
@@ -399,13 +436,13 @@ Individual community memory vaults that store artifact metadata, manage donation
 ```solidity
 contract Archive is ERC1155, ReentrancyGuard {
     string public name;           // Archive name
-    string public description;    // Archive description  
+    string public description;    // Archive description
     address public admin;         // Archive administrator
-    
+
     // Artifact tracking
     uint256 private _nextId = 1;  // Next artifact ID (starts at 1)
     mapping(uint256 => ArtifactMetadata) public metadata;
-    
+
     // Donor tracking
     address[] public donors;
     mapping(address => uint256) public donorIndex;
@@ -416,6 +453,7 @@ contract Archive is ERC1155, ReentrancyGuard {
 ### 🗂️ Data Structures
 
 #### `Status` Enum
+
 ```solidity
 enum Status {
     Pending,   // 0 - Awaiting admin review
@@ -425,6 +463,7 @@ enum Status {
 ```
 
 #### `ArtifactMetadata` Struct
+
 ```solidity
 struct ArtifactMetadata {
     string title;        // Human-readable title
@@ -437,6 +476,7 @@ struct ArtifactMetadata {
 ```
 
 #### `Donor` Struct
+
 ```solidity
 struct Donor {
     address donor;         // Donor's address
@@ -448,48 +488,62 @@ struct Donor {
 ### 🔧 Public State Variables
 
 #### `name`
+
 ```solidity
 string public name;
 ```
+
 **Description**: Human-readable name of the archive
 **Example**: `"Dublin Folk Memories"`
 
 #### `description`
+
 ```solidity
 string public description;
 ```
+
 **Description**: Short description of the archive's purpose
 **Example**: `"Preserving stories from Dublin's communities"`
 
 #### `admin`
+
 ```solidity
 address public admin;
 ```
+
 **Description**: Address with administrative privileges (can accept/reject artifacts)
 
 #### `metadata`
+
 ```solidity
 mapping(uint256 => ArtifactMetadata) public metadata;
 ```
+
 **Description**: Maps artifact IDs to their metadata
 **Usage**: `metadata[1]` returns the metadata for artifact ID 1
 
 #### `donors`
+
 ```solidity
 address[] public donors;
 ```
+
 **Description**: Array of all unique donor addresses (ordered by first donation)
 
 #### `donorIndex`
+
 ```solidity
 mapping(address => uint256) public donorIndex;
 ```
+
 **Description**: Maps donor address to their index in the donors array (1-based, 0 means not found)
 
 #### `donorInfo`
+
 ```solidity
 mapping(address => Donor) public donorInfo;
 ```
+
 **Description**: Maps donor address to their donation statistics
 
 ---
@@ -497,10 +551,11 @@ mapping(address => Donor) public donorInfo;
 ### 🔧 Functions
 
 #### `submitArtifact`
+
 ```solidity
 function submitArtifact(
     string calldata _title,
-    string calldata _arweaveURI, 
+    string calldata _arweaveURI,
     string calldata _mimeType
 ) external returns (uint256 id)
 ```
@@ -508,11 +563,13 @@ function submitArtifact(
 **Description**: Submit a new artifact for admin review. Creates a pending artifact with a unique ID.
 
 **Parameters**:
+
 - `_title` (string): Human-readable title (e.g., "My Grandmother's Recipe")
 - `_arweaveURI` (string): Arweave URI where content is stored (e.g., "ar://abc123...")
 - `_mimeType` (string): MIME type of the content (e.g., "image/jpeg", "audio/mp3", "application/pdf")
 
 **Returns**:
+
 - `id` (uint256): Unique identifier for the submitted artifact
 
 **Access Control**: Public - anyone can submit
@@ -520,17 +577,19 @@ function submitArtifact(
 **Gas Cost**: ~85,000 gas
 
 **Requirements**:
+
 - All string parameters must be non-empty
 - No duplicate checking (same content can be submitted multiple times)
 
 **Events Emitted**: `ArtifactSubmitted(uint256 indexed id, address indexed submitter)`
 
 **Example Usage**:
+
 ```javascript
 const tx = await archive.submitArtifact(
-    "My Grandmother's Irish Stew Recipe",
-    "ar://bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
-    "application/pdf"
+  "My Grandmother's Irish Stew Recipe",
+  "ar://bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
+  "application/pdf"
 );
 const receipt = await tx.wait();
 const artifactId = receipt.events[0].args.id;
@@ -539,6 +598,7 @@ const artifactId = receipt.events[0].args.id;
 ---
 
 #### `acceptArtifact`
+
 ```solidity
 function acceptArtifact(uint256 _id, uint256 _rewardWei) external onlyAdmin nonReentrant
 ```
@@ -546,6 +606,7 @@ function acceptArtifact(uint256 _id, uint256 _rewardWei) external onlyAdmin nonR
 **Description**: Admin accepts a pending artifact, mints an ERC-1155 NFT to the submitter, and optionally sends ETH reward.
 
 **Parameters**:
+
 - `_id` (uint256): ID of the artifact to accept
 - `_rewardWei` (uint256): Amount of ETH to send as reward (in wei, can be 0)
 
@@ -556,20 +617,24 @@ function acceptArtifact(uint256 _id, uint256 _rewardWei) external onlyAdmin nonR
 **Gas Cost**: ~180,000 gas (includes NFT minting and potential ETH transfer)
 
 **Requirements**:
+
 - Artifact must exist and be in Pending status
 - If `_rewardWei > 0`, contract must have sufficient balance
 - Artifact cannot already be finalized (accepted or rejected)
 
-**Events Emitted**: 
+**Events Emitted**:
+
 - `ArtifactAccepted(uint256 indexed id, address indexed submitter, uint256 reward)`
 - ERC-1155 `TransferSingle` event from minting
 
 **Side Effects**:
+
 - Mints 1 ERC-1155 token with ID `_id` to the submitter
 - Transfers `_rewardWei` ETH to submitter (if > 0)
 - Changes artifact status to Accepted
 
 **Example Usage**:
+
 ```javascript
 // Accept artifact and reward with 0.1 ETH
 const rewardAmount = ethers.utils.parseEther("0.1");
@@ -582,6 +647,7 @@ await archive.acceptArtifact(artifactId, 0);
 ---
 
 #### `rejectArtifact`
+
 ```solidity
 function rejectArtifact(uint256 _id) external onlyAdmin
 ```
@@ -589,6 +655,7 @@ function rejectArtifact(uint256 _id) external onlyAdmin
 **Description**: Admin rejects a pending artifact. No NFT is minted and no reward is given.
 
 **Parameters**:
+
 - `_id` (uint256): ID of the artifact to reject
 
 **Returns**: None
@@ -598,16 +665,19 @@ function rejectArtifact(uint256 _id) external onlyAdmin
 **Gas Cost**: ~25,000 gas
 
 **Requirements**:
+
 - Artifact must exist and be in Pending status
 - Artifact cannot already be finalized
 
 **Events Emitted**: `ArtifactRejected(uint256 indexed id, address indexed submitter)`
 
 **Side Effects**:
+
 - Changes artifact status to Rejected
 - Artifact becomes permanently rejected (cannot be re-reviewed)
 
 **Example Usage**:
+
 ```javascript
 await archive.rejectArtifact(artifactId);
 ```
@@ -615,6 +685,7 @@ await archive.rejectArtifact(artifactId);
 ---
 
 #### `receiveDonation`
+
 ```solidity
 function receiveDonation(string calldata _message) external payable
 ```
@@ -622,6 +693,7 @@ function receiveDonation(string calldata _message) external payable
 **Description**: Accept a donation with an optional message. Updates donor statistics.
 
 **Parameters**:
+
 - `_message` (string): Optional message from donor (not stored on-chain, only for events)
 
 **Returns**: None
@@ -631,24 +703,30 @@ function receiveDonation(string calldata _message) external payable
 **Gas Cost**: ~65,000 gas (first donation), ~45,000 gas (subsequent donations)
 
 **Requirements**:
+
 - `msg.value` must be greater than 0
 
 **Events Emitted**: `DonationReceived(address indexed from, uint256 amount)`
 
 **Side Effects**:
+
 - Adds ETH to contract balance
 - Updates or creates donor record
 - If first donation from address, adds to donors array
 
 **Example Usage**:
+
 ```javascript
 const donationAmount = ethers.utils.parseEther("0.5");
-await archive.receiveDonation("Keep up the great work!", { value: donationAmount });
+await archive.receiveDonation("Keep up the great work!", {
+  value: donationAmount,
+});
 ```
 
 ---
 
 #### `receive`
+
 ```solidity
 receive() external payable
 ```
@@ -664,6 +742,7 @@ receive() external payable
 **Gas Cost**: ~65,000 gas (first donation), ~45,000 gas (subsequent donations)
 
 **Requirements**:
+
 - `msg.value` must be greater than 0
 
 **Events Emitted**: `DonationReceived(address indexed from, uint256 amount)`
@@ -671,17 +750,19 @@ receive() external payable
 **Side Effects**: Same as `receiveDonation` but without message
 
 **Example Usage**:
+
 ```javascript
 // Send ETH directly to contract
 await signer.sendTransaction({
-    to: archiveAddress,
-    value: ethers.utils.parseEther("0.25")
+  to: archiveAddress,
+  value: ethers.utils.parseEther("0.25"),
 });
 ```
 
 ---
 
 #### `uri`
+
 ```solidity
 function uri(uint256 _id) public view override returns (string memory)
 ```
@@ -689,9 +770,11 @@ function uri(uint256 _id) public view override returns (string memory)
 **Description**: Returns base64-encoded JSON metadata for accepted artifacts (ERC-1155 standard).
 
 **Parameters**:
+
 - `_id` (uint256): Token/artifact ID
 
 **Returns**:
+
 - `string`: Data URI with base64-encoded JSON metadata
 
 **Access Control**: Public view
@@ -699,26 +782,29 @@ function uri(uint256 _id) public view override returns (string memory)
 **Gas Cost**: ~15,000 gas
 
 **Requirements**:
+
 - Artifact must exist and be in Accepted status
 
 **Metadata Format**:
+
 ```json
 {
-    "name": "Artifact Title",
-    "description": "Artifact stored in Archive Name",
-    "image": "ar://arweave-uri",
-    "mimeType": "image/jpeg",
-    "timestamp": 1641024000
+  "name": "Artifact Title",
+  "description": "Artifact stored in Archive Name",
+  "image": "ar://arweave-uri",
+  "mimeType": "image/jpeg",
+  "timestamp": 1641024000
 }
 ```
 
 **Example Usage**:
+
 ```javascript
 const tokenURI = await archive.uri(artifactId);
 // Returns: "data:application/json;base64,eyJuYW1lIjoi..."
 
 // To decode:
-const base64Data = tokenURI.split(',')[1];
+const base64Data = tokenURI.split(",")[1];
 const jsonString = atob(base64Data);
 const metadata = JSON.parse(jsonString);
 ```
@@ -726,6 +812,7 @@ const metadata = JSON.parse(jsonString);
 ---
 
 #### `totalDonors`
+
 ```solidity
 function totalDonors() external view returns (uint256)
 ```
@@ -735,6 +822,7 @@ function totalDonors() external view returns (uint256)
 **Parameters**: None
 
 **Returns**:
+
 - `uint256`: Number of unique addresses that have donated
 
 **Access Control**: Public view
@@ -742,6 +830,7 @@ function totalDonors() external view returns (uint256)
 **Gas Cost**: ~2,400 gas
 
 **Example Usage**:
+
 ```javascript
 const donorCount = await archive.totalDonors();
 ```
@@ -749,6 +838,7 @@ const donorCount = await archive.totalDonors();
 ---
 
 #### `getDonors`
+
 ```solidity
 function getDonors(uint256 offset, uint256 limit) external view returns (Donor[] memory slice)
 ```
@@ -756,17 +846,20 @@ function getDonors(uint256 offset, uint256 limit) external view returns (Donor[]
 **Description**: Returns a paginated list of donors with their statistics.
 
 **Parameters**:
+
 - `offset` (uint256): Starting index (0-based)
 - `limit` (uint256): Maximum number of donors to return
 
 **Returns**:
+
 - `slice` (Donor[]): Array of Donor structs
 
 **Access Control**: Public view
 
-**Gas Cost**: ~5,000 + (1,000 * returned donors) gas
+**Gas Cost**: ~5,000 + (1,000 \* returned donors) gas
 
 **Example Usage**:
+
 ```javascript
 // Get first 10 donors
 const firstDonors = await archive.getDonors(0, 10);
@@ -783,6 +876,7 @@ const page2Donors = await archive.getDonors(20, pageSize);
 ---
 
 #### `getTotalArtifacts`
+
 ```solidity
 function getTotalArtifacts() external view returns (uint256)
 ```
@@ -792,6 +886,7 @@ function getTotalArtifacts() external view returns (uint256)
 **Parameters**: None
 
 **Returns**:
+
 - `uint256`: Total number of artifacts submitted
 
 **Access Control**: Public view
@@ -799,6 +894,7 @@ function getTotalArtifacts() external view returns (uint256)
 **Gas Cost**: ~2,300 gas
 
 **Example Usage**:
+
 ```javascript
 const totalArtifacts = await archive.getTotalArtifacts();
 ```
@@ -806,6 +902,7 @@ const totalArtifacts = await archive.getTotalArtifacts();
 ---
 
 #### `getArtifactsByStatus`
+
 ```solidity
 function getArtifactsByStatus(Status _status, uint256 limit) external view returns (uint256[] memory ids)
 ```
@@ -813,19 +910,22 @@ function getArtifactsByStatus(Status _status, uint256 limit) external view retur
 **Description**: Returns artifact IDs filtered by status, up to a specified limit.
 
 **Parameters**:
+
 - `_status` (Status): Status to filter by (0=Pending, 1=Accepted, 2=Rejected)
 - `limit` (uint256): Maximum number of IDs to return
 
 **Returns**:
+
 - `ids` (uint256[]): Array of artifact IDs matching the status
 
 **Access Control**: Public view
 
-**Gas Cost**: ~5,000 + (500 * checked artifacts) gas
+**Gas Cost**: ~5,000 + (500 \* checked artifacts) gas
 
 **Note**: This function scans from ID 1 up to `_nextId`, so gas cost increases with total artifacts
 
 **Example Usage**:
+
 ```javascript
 // Get pending artifacts for admin review
 const pendingIds = await archive.getArtifactsByStatus(0, 50);
@@ -840,6 +940,7 @@ const rejectedIds = await archive.getArtifactsByStatus(2, 25);
 ---
 
 #### `getArchiveStats`
+
 ```solidity
 function getArchiveStats() external view returns (
     uint256 totalArtifacts,
@@ -853,6 +954,7 @@ function getArchiveStats() external view returns (
 **Parameters**: None
 
 **Returns**:
+
 - `totalArtifacts` (uint256): Total number of artifacts submitted
 - `totalDonationsWei` (uint256): Current contract balance (total donations minus rewards)
 - `totalDonorCount` (uint256): Number of unique donors
@@ -862,14 +964,21 @@ function getArchiveStats() external view returns (
 **Gas Cost**: ~4,500 gas
 
 **Example Usage**:
+
 ```javascript
-const [totalArtifacts, totalDonations, totalDonors] = await archive.getArchiveStats();
-console.log(`Stats: ${totalArtifacts} artifacts, ${ethers.utils.formatEther(totalDonations)} ETH, ${totalDonors} donors`);
+const [totalArtifacts, totalDonations, totalDonors] =
+  await archive.getArchiveStats();
+console.log(
+  `Stats: ${totalArtifacts} artifacts, ${ethers.utils.formatEther(
+    totalDonations
+  )} ETH, ${totalDonors} donors`
+);
 ```
 
 ---
 
 #### `transferAdmin`
+
 ```solidity
 function transferAdmin(address _newAdmin) external onlyAdmin
 ```
@@ -877,6 +986,7 @@ function transferAdmin(address _newAdmin) external onlyAdmin
 **Description**: Transfer administrative rights to another address.
 
 **Parameters**:
+
 - `_newAdmin` (address): New admin address
 
 **Returns**: None
@@ -886,16 +996,19 @@ function transferAdmin(address _newAdmin) external onlyAdmin
 **Gas Cost**: ~28,000 gas
 
 **Requirements**:
+
 - `_newAdmin` cannot be zero address
 - Only current admin can call
 
 **Events Emitted**: `AdminTransferred(address indexed oldAdmin, address indexed newAdmin)`
 
 **Side Effects**:
+
 - Immediately transfers all admin privileges
 - Original admin loses all admin access
 
 **Example Usage**:
+
 ```javascript
 await archive.transferAdmin("0x742d35Cc6634C0532925a3b8D7389d12345678901");
 ```
@@ -907,12 +1020,14 @@ await archive.transferAdmin("0x742d35Cc6634C0532925a3b8D7389d12345678901");
 ### ArchiveFactory Events
 
 #### `ArchiveCreated`
+
 ```solidity
 event ArchiveCreated(address indexed archive, string name, address indexed admin);
 ```
 
 **Description**: Emitted when a new archive is created
 **Parameters**:
+
 - `archive` (indexed): Address of the new archive contract
 - `name`: Name of the archive
 - `admin` (indexed): Address of the archive admin
@@ -922,53 +1037,63 @@ event ArchiveCreated(address indexed archive, string name, address indexed admin
 ### Archive Events
 
 #### `ArtifactSubmitted`
+
 ```solidity
 event ArtifactSubmitted(uint256 indexed id, address indexed submitter);
 ```
 
 **Description**: Emitted when a new artifact is submitted
 **Parameters**:
+
 - `id` (indexed): Unique artifact ID
 - `submitter` (indexed): Address that submitted the artifact
 
 #### `ArtifactAccepted`
+
 ```solidity
 event ArtifactAccepted(uint256 indexed id, address indexed submitter, uint256 reward);
 ```
 
 **Description**: Emitted when an artifact is accepted by admin
 **Parameters**:
+
 - `id` (indexed): Artifact ID
 - `submitter` (indexed): Address that submitted the artifact
 - `reward`: ETH reward amount in wei (can be 0)
 
 #### `ArtifactRejected`
+
 ```solidity
 event ArtifactRejected(uint256 indexed id, address indexed submitter);
 ```
 
 **Description**: Emitted when an artifact is rejected by admin
 **Parameters**:
+
 - `id` (indexed): Artifact ID
 - `submitter` (indexed): Address that submitted the artifact
 
 #### `DonationReceived`
+
 ```solidity
 event DonationReceived(address indexed from, uint256 amount);
 ```
 
 **Description**: Emitted when a donation is received
 **Parameters**:
+
 - `from` (indexed): Donor address
 - `amount`: Donation amount in wei
 
 #### `AdminTransferred`
+
 ```solidity
 event AdminTransferred(address indexed oldAdmin, address indexed newAdmin);
 ```
 
 **Description**: Emitted when admin rights are transferred
 **Parameters**:
+
 - `oldAdmin` (indexed): Previous admin address
 - `newAdmin` (indexed): New admin address
 
@@ -977,9 +1102,11 @@ event AdminTransferred(address indexed oldAdmin, address indexed newAdmin);
 ## ⚠️ Error Codes
 
 ### ArchiveFactory Errors
+
 - `"ArchiveFactory: empty name"` - Archive name cannot be empty string
 
 ### Archive Errors
+
 - `"Archive: not admin"` - Function requires admin privileges
 - `"Archive: empty string"` - String parameter cannot be empty
 - `"Archive: zero admin address"` - Admin address cannot be zero
@@ -998,28 +1125,28 @@ event AdminTransferred(address indexed oldAdmin, address indexed newAdmin);
 
 ### ArchiveFactory
 
-| Function | Gas Cost | Notes |
-|----------|----------|-------|
+| Function        | Gas Cost   | Notes                |
+| --------------- | ---------- | -------------------- |
 | `createArchive` | ~2,100,000 | Deploys new contract |
-| `totalArchives` | ~2,400 | Simple storage read |
-| `archives[i]` | ~2,600 | Array access |
+| `totalArchives` | ~2,400     | Simple storage read  |
+| `archives[i]`   | ~2,600     | Array access         |
 
 ### Archive
 
-| Function | First Call | Subsequent Calls | Notes |
-|----------|------------|------------------|-------|
-| `submitArtifact` | ~85,000 | ~85,000 | Consistent cost |
-| `acceptArtifact` | ~180,000 | ~180,000 | Includes NFT mint |
-| `rejectArtifact` | ~25,000 | ~25,000 | Simple state change |
-| `receiveDonation` | ~65,000 | ~45,000 | First adds to array |
-| `receive` | ~65,000 | ~45,000 | Same as receiveDonation |
-| `uri` | ~15,000 | ~15,000 | String manipulation |
-| `totalDonors` | ~2,400 | ~2,400 | Simple read |
-| `getDonors` | ~5,000 + (1k × items) | Same | Scales with results |
-| `getTotalArtifacts` | ~2,300 | ~2,300 | Simple read |
-| `getArtifactsByStatus` | ~5,000 + (500 × total) | Same | Scans all artifacts |
-| `getArchiveStats` | ~4,500 | ~4,500 | Multiple reads |
-| `transferAdmin` | ~28,000 | ~28,000 | Event emission |
+| Function               | First Call             | Subsequent Calls | Notes                   |
+| ---------------------- | ---------------------- | ---------------- | ----------------------- |
+| `submitArtifact`       | ~85,000                | ~85,000          | Consistent cost         |
+| `acceptArtifact`       | ~180,000               | ~180,000         | Includes NFT mint       |
+| `rejectArtifact`       | ~25,000                | ~25,000          | Simple state change     |
+| `receiveDonation`      | ~65,000                | ~45,000          | First adds to array     |
+| `receive`              | ~65,000                | ~45,000          | Same as receiveDonation |
+| `uri`                  | ~15,000                | ~15,000          | String manipulation     |
+| `totalDonors`          | ~2,400                 | ~2,400           | Simple read             |
+| `getDonors`            | ~5,000 + (1k × items)  | Same             | Scales with results     |
+| `getTotalArtifacts`    | ~2,300                 | ~2,300           | Simple read             |
+| `getArtifactsByStatus` | ~5,000 + (500 × total) | Same             | Scans all artifacts     |
+| `getArchiveStats`      | ~4,500                 | ~4,500           | Multiple reads          |
+| `transferAdmin`        | ~28,000                | ~28,000          | Event emission          |
 
 ---
 
@@ -1028,6 +1155,7 @@ event AdminTransferred(address indexed oldAdmin, address indexed newAdmin);
 ### Frontend Integration with Wagmi/Scaffold-ETH
 
 #### Reading Archive Data
+
 ```typescript
 import { useScaffoldReadContract } from "~~/hooks/scaffold-eth";
 
@@ -1039,14 +1167,14 @@ const { data: archiveName } = useScaffoldReadContract({
 
 // Get archive stats
 const { data: stats } = useScaffoldReadContract({
-  contractName: "Archive", 
+  contractName: "Archive",
   functionName: "getArchiveStats",
 });
 
 // Get pending artifacts for admin
 const { data: pendingIds } = useScaffoldReadContract({
   contractName: "Archive",
-  functionName: "getArtifactsByStatus", 
+  functionName: "getArtifactsByStatus",
   args: [0, 50], // Status.Pending, limit 50
 });
 
@@ -1059,15 +1187,20 @@ const { data: artifactData } = useScaffoldReadContract({
 ```
 
 #### Writing to Archive
+
 ```typescript
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 
 const { writeContractAsync: writeArchive } = useScaffoldWriteContract({
-  contractName: "Archive"
+  contractName: "Archive",
 });
 
 // Submit new artifact
-const submitArtifact = async (title: string, arweaveUri: string, mimeType: string) => {
+const submitArtifact = async (
+  title: string,
+  arweaveUri: string,
+  mimeType: string
+) => {
   try {
     const result = await writeArchive({
       functionName: "submitArtifact",
@@ -1083,7 +1216,7 @@ const submitArtifact = async (title: string, arweaveUri: string, mimeType: strin
 const donate = async (amount: string, message: string) => {
   try {
     const result = await writeArchive({
-      functionName: "receiveDonation", 
+      functionName: "receiveDonation",
       args: [message],
       value: parseEther(amount),
     });
@@ -1108,6 +1241,7 @@ const acceptArtifact = async (id: number, rewardEth: string) => {
 ```
 
 ### Event Listening
+
 ```typescript
 import { useScaffoldEventHistory } from "~~/hooks/scaffold-eth";
 
@@ -1120,22 +1254,23 @@ const { data: artifactEvents } = useScaffoldEventHistory({
 
 // Listen for donations
 const { data: donationEvents } = useScaffoldEventHistory({
-  contractName: "Archive", 
+  contractName: "Archive",
   eventName: "DonationReceived",
   fromBlock: 0n,
 });
 ```
 
 ### Batch Operations
+
 ```typescript
 // Get multiple artifacts with their metadata
 const getArtifactsWithMetadata = async (ids: number[]) => {
-  const promises = ids.map(id => 
+  const promises = ids.map((id) =>
     readContract({
       address: archiveAddress,
       abi: archiveAbi,
       functionName: "metadata",
-      args: [id]
+      args: [id],
     })
   );
   return Promise.all(promises);
@@ -1145,24 +1280,25 @@ const getArtifactsWithMetadata = async (ids: number[]) => {
 const getAllDonors = async () => {
   const total = await readContract({
     address: archiveAddress,
-    abi: archiveAbi, 
-    functionName: "totalDonors"
+    abi: archiveAbi,
+    functionName: "totalDonors",
   });
-  
+
   return readContract({
     address: archiveAddress,
     abi: archiveAbi,
-    functionName: "getDonors", 
-    args: [0, total]
+    functionName: "getDonors",
+    args: [0, total],
   });
 };
 ```
 
 ### Archive Factory Integration
+
 ```typescript
 // Create new archive
 const { writeContractAsync: writeFactory } = useScaffoldWriteContract({
-  contractName: "ArchiveFactory"
+  contractName: "ArchiveFactory",
 });
 
 const createArchive = async (name: string, description: string) => {
@@ -1171,12 +1307,12 @@ const createArchive = async (name: string, description: string) => {
       functionName: "createArchive",
       args: [name, description, ""], // Empty baseUri
     });
-    
+
     // Get archive address from event
     const receipt = await result.wait();
-    const event = receipt.events?.find(e => e.event === "ArchiveCreated");
+    const event = receipt.events?.find((e) => e.event === "ArchiveCreated");
     const archiveAddress = event?.args?.archive;
-    
+
     return archiveAddress;
   } catch (error) {
     console.error("Error creating archive:", error);
@@ -1188,21 +1324,21 @@ const getAllArchives = async () => {
   const total = await readContract({
     address: factoryAddress,
     abi: factoryAbi,
-    functionName: "totalArchives"
+    functionName: "totalArchives",
   });
-  
+
   const promises = [];
   for (let i = 0; i < total; i++) {
     promises.push(
       readContract({
         address: factoryAddress,
-        abi: factoryAbi, 
+        abi: factoryAbi,
         functionName: "archives",
-        args: [i]
+        args: [i],
       })
     );
   }
-  
+
   return Promise.all(promises);
 };
 ```
