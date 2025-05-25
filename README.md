@@ -4,6 +4,8 @@
 
 Memoria is a decentralized memory archive system designed at ETH Dublin Hackathon 2025. The project enables communities to preserve memories—stories, images, songs, recipes, and cultural artifacts—permanently on-chain and on Arweave, creating an unstoppable record of human heritage.
 
+It's live [here](https://memoria-silk.vercel.app/)
+
 ## 🌍 Why Memoria Matters
 
 Across the world, local histories are often erased, censored, or forgotten. Centralized institutions (governments, media, museums) frequently fail to preserve emotional, oral, and grassroots stories. Memoria enables decentralized, trust-anchored preservation of human memory with permanent storage on Arweave and immutable verification on Ethereum.
@@ -39,6 +41,8 @@ Individual community memory vaults that store artifact metadata and manage rewar
 - **Admin Controls**: Secure admin functions with proper access control
 
 ## 🔗 Smart Contract Details
+
+You can view our contracts live on [Etherscan Sepolia](https://sepolia.etherscan.io/address/0x371cb38b81ae204a7950ff31b3caa1a5b563b1de)
 
 ### Archive Contract Functions
 
