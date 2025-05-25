@@ -53,7 +53,7 @@ export default function CreateArchivePage() {
   };
 
   const handleBack = () => {
-    router.push("/archives");
+    router.push("/archive/list");
   };
 
   return (

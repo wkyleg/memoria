@@ -4,7 +4,6 @@ import Link from "next/link";
 import type { NextPage } from "next";
 import {
   ArchiveBoxIcon,
-  ArrowRightIcon,
   BookOpenIcon,
   CameraIcon,
   CheckCircleIcon,
@@ -44,14 +43,11 @@ const Home: NextPage = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-              <Link href="/onboarding">
-                <button className="btn btn-lg bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-gray-900 font-semibold px-8 py-4 text-lg">
-                  Get Started
-                  <ArrowRightIcon className="w-5 h-5 ml-2" />
-                </button>
-              </Link>
-              <Link href="/archive">
-                <button className="btn btn-lg border-amber-500/30 text-amber-400 hover:bg-amber-500/10 px-8 py-4 text-lg">
+              <Link href="/archive/list">
+                <button
+                  className="btn btn-lg border-amber-500/30 text-amber-400 hover:bg-amber-500/10 px-8 py-4 text-lg"
+                  type="button"
+                >
                   Explore Archives
                 </button>
               </Link>

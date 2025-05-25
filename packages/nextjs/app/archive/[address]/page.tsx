@@ -262,7 +262,7 @@ export default function ArchiveDetailPage() {
   ] as const;
 
   const handleBack = () => {
-    router.push("/archives");
+    router.push("/archive/list");
   };
 
   // Handle form input changes
