@@ -35,7 +35,8 @@ contract ArchiveTest is Test {
         assertEq(archive.name(), ARCHIVE_NAME);
         assertEq(archive.description(), ARCHIVE_DESCRIPTION);
         assertEq(archive.admin(), admin);
-        assertEq(archive.totalDonors(), 0);
+        (, , uint256 totalDonorCount) = archive.getArchiveInfo();
+        assertEq(totalDonorCount, 0);
     }
     
     function testConstructorValidation() public {
@@ -96,7 +97,8 @@ contract ArchiveTest is Test {
         archive.receiveDonation{value: donationAmount}(message);
         
         assertEq(address(archive).balance, donationAmount);
-        assertEq(archive.totalDonors(), 1);
+        (, , uint256 totalDonorCount) = archive.getArchiveInfo();
+        assertEq(totalDonorCount, 1);
         
         (address donor, uint256 totalDonated, uint256 donationCount) = archive.donorInfo(user1);
         assertEq(donor, user1);
@@ -122,7 +124,8 @@ contract ArchiveTest is Test {
         assertEq(success, true);
         
         assertEq(address(archive).balance, donationAmount);
-        assertEq(archive.totalDonors(), 1);
+        (, , uint256 totalDonorCount) = archive.getArchiveInfo();
+        assertEq(totalDonorCount, 1);
         
         (address donor, uint256 totalDonated, uint256 donationCount) = archive.donorInfo(user2);
         assertEq(donor, user2);
@@ -149,7 +152,9 @@ contract ArchiveTest is Test {
         vm.prank(user1);
         archive.receiveDonation{value: 0.3 ether}("Second donation");
         
-        assertEq(archive.totalDonors(), 1);
+        assertEq(address(archive).balance, 0.8 ether);
+        (, , uint256 totalDonorCount) = archive.getArchiveInfo();
+        assertEq(totalDonorCount, 1);
         
         (address donor, uint256 totalDonated, uint256 donationCount) = archive.donorInfo(user1);
         assertEq(donor, user1);
@@ -175,7 +180,9 @@ contract ArchiveTest is Test {
         (bool success,) = address(archive).call{value: 0.2 ether}("");
         assertEq(success, true);
         
-        assertEq(archive.totalDonors(), 3);
+        assertEq(address(archive).balance, 1.0 ether);
+        (, , uint256 totalDonorCount) = archive.getArchiveInfo();
+        assertEq(totalDonorCount, 3);
         
         // Check individual donor info
         (address donor1, uint256 total1, uint256 count1) = archive.donorInfo(user1);
@@ -366,16 +373,8 @@ contract ArchiveTest is Test {
         
         string memory uri = archive.uri(artifactId);
         
-        // The URI should be a base64-encoded JSON
-        assertTrue(bytes(uri).length > 0);
-        
-        // Should start with data:application/json;base64,
-        bytes memory expectedPrefix = bytes("data:application/json;base64,");
-        bytes memory actualPrefix = new bytes(expectedPrefix.length);
-        for (uint i = 0; i < expectedPrefix.length; i++) {
-            actualPrefix[i] = bytes(uri)[i];
-        }
-        assertEq(string(actualPrefix), string(expectedPrefix));
+        // The URI should be the Arweave URI directly
+        assertEq(uri, ARTIFACT_ARWEAVE_URI);
     }
     
     function testUriForNonAcceptedArtifact() public {

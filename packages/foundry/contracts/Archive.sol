@@ -5,8 +5,6 @@ pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/utils/Strings.sol";
-import "@openzeppelin/contracts/utils/Base64.sol";
 
 /// @title Archive – ERC‑1155 vault of immutable community memories (Artifacts)
 /// @dev One Archive per community; each Artifact is a unique token ID.
@@ -148,34 +146,42 @@ contract Archive is ERC1155, ReentrancyGuard {
     function uri(uint256 _id) public view override returns (string memory) {
         ArtifactMetadata memory art = metadata[_id];
         require(art.status == Status.Accepted, "Archive: not accepted");
-
-        string memory json = string(
-            abi.encodePacked(
-                "{",
-                '"name":"',
-                art.title,
-                '",',
-                '"description":"Artifact stored in ',
-                name,
-                '",',
-                '"image":"',
-                art.arweaveURI,
-                '",',
-                '"mimeType":"',
-                art.mimeType,
-                '",',
-                '"timestamp":',
-                Strings.toString(art.timestamp),
-                "}"
-            )
-        );
-
-        return string(abi.encodePacked("data:application/json;base64,", Base64.encode(bytes(json))));
+        return art.arweaveURI; // Return Arweave URI directly
     }
 
-    /// @notice Get total number of unique donors
-    function totalDonors() external view returns (uint256) {
-        return donors.length;
+    /// @notice Get total number of artifacts
+    function getTotalArtifacts() external view returns (uint256) {
+        return _nextId - 1;
+    }
+
+    /// @notice Get basic archive info for frontend
+    function getArchiveInfo() external view returns (
+        uint256 nextArtifactId,
+        uint256 balance,
+        uint256 totalDonorCount
+    ) {
+        nextArtifactId = _nextId;
+        balance = address(this).balance;
+        totalDonorCount = donors.length;
+    }
+
+    /// @notice Get artifact metadata by ID
+    function getArtifact(uint256 _id) external view returns (
+        string memory title,
+        string memory arweaveURI,
+        string memory mimeType,
+        uint256 timestamp,
+        address submitter,
+        Status status
+    ) {
+        return (metadata[_id].title, metadata[_id].arweaveURI, metadata[_id].mimeType, metadata[_id].timestamp, metadata[_id].submitter, metadata[_id].status);
+    }
+
+    /// @notice Transfer admin rights to another address
+    function transferAdmin(address _newAdmin) external onlyAdmin {
+        require(_newAdmin != address(0), "Archive: zero address");
+        emit AdminTransferred(admin, _newAdmin);
+        admin = _newAdmin;
     }
 
     /// @notice Get paginated list of donors
@@ -189,51 +195,6 @@ contract Archive is ERC1155, ReentrancyGuard {
             address donorAddr = donors[i];
             slice[i - offset] = donorInfo[donorAddr];
         }
-    }
-
-    /// @notice Get total number of artifacts
-    function getTotalArtifacts() external view returns (uint256) {
-        return _nextId - 1;
-    }
-
-    /// @notice Get artifacts by status (simple version)
-    function getArtifactsByStatus(Status _status, uint256 limit) 
-        external 
-        view 
-        returns (uint256[] memory ids) 
-    {
-        uint256[] memory tempIds = new uint256[](limit);
-        uint256 count = 0;
-        
-        for (uint256 i = 1; i < _nextId && count < limit; i++) {
-            if (metadata[i].status == _status) {
-                tempIds[count] = i;
-                count++;
-            }
-        }
-        
-        ids = new uint256[](count);
-        for (uint256 i = 0; i < count; i++) {
-            ids[i] = tempIds[i];
-        }
-    }
-
-    /// @notice Get basic archive stats
-    function getArchiveStats() external view returns (
-        uint256 totalArtifacts,
-        uint256 totalDonationsWei,
-        uint256 totalDonorCount
-    ) {
-        totalArtifacts = _nextId - 1;
-        totalDonationsWei = address(this).balance;
-        totalDonorCount = donors.length;
-    }
-
-    /// @notice Transfer admin rights to another address
-    function transferAdmin(address _newAdmin) external onlyAdmin {
-        require(_newAdmin != address(0), "Archive: zero address");
-        emit AdminTransferred(admin, _newAdmin);
-        admin = _newAdmin;
     }
 
     // ───────────────────────────────────  Internal Functions  ──────────────────

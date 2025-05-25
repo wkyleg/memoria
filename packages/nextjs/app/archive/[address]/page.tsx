@@ -1,12 +1,123 @@
 "use client";
 
 import type React from "react";
+import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useAccount } from "wagmi";
-import { useReadContract } from "wagmi";
+import { useReadContract, useWriteContract } from "wagmi";
 import { ArrowLeftIcon, CurrencyDollarIcon, DocumentIcon, UsersIcon } from "@heroicons/react/24/outline";
 import { Address, Balance } from "~~/components/scaffold-eth";
 import { useScaffoldContract } from "~~/hooks/scaffold-eth";
+import { notification } from "~~/utils/scaffold-eth";
+
+// Artifact Card Component for beautiful display
+interface ArtifactCardProps {
+  artifactId: number;
+  archiveAddress: string;
+  archiveContract: { abi: readonly unknown[] } | null;
+  isPending: boolean;
+}
+
+function ArtifactCard({ artifactId, archiveAddress, archiveContract, isPending }: ArtifactCardProps) {
+  console.log("ArtifactCard");
+  console.log({
+    artifactId,
+    archiveAddress,
+    archiveContract,
+    isPending,
+  });
+
+  // Use the new getArtifact function
+  const { data: artifactData } = useReadContract({
+    address: archiveAddress as `0x${string}`,
+    abi: archiveContract?.abi,
+    functionName: "getArtifact",
+    args: [BigInt(artifactId)],
+  });
+
+  console.log(`Artifact ${artifactId} data:`, artifactData);
+
+  if (!artifactData) {
+    return (
+      <div className="card bg-gray-800/50 backdrop-blur-xl border-gray-600/20 border">
+        <div className="aspect-video bg-gray-700/50 animate-pulse rounded-t-lg" />
+        <div className="card-body">
+          <div className="h-4 bg-gray-700/50 rounded animate-pulse mb-2" />
+          <div className="h-3 bg-gray-700/50 rounded animate-pulse w-2/3" />
+        </div>
+      </div>
+    );
+  }
+
+  const [title, arweaveURI, mimeType, timestamp, submitter] = artifactData as [
+    string,
+    string,
+    string,
+    bigint,
+    string,
+    number,
+  ];
+  const isImage = mimeType.startsWith("image/");
+
+  return (
+    <div className="card bg-gray-800/50 backdrop-blur-xl border-amber-500/20 border hover:border-amber-500/40 transition-all duration-300 group">
+      {/* Media Preview */}
+      <div className="aspect-video bg-gradient-to-br from-gray-700 to-gray-800 rounded-t-lg overflow-hidden relative">
+        {isImage ? (
+          <img
+            src={arweaveURI.replace("ar://", "https://arweave.net/")}
+            alt={title}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            onError={e => {
+              const target = e.currentTarget as HTMLImageElement;
+              target.style.display = "none";
+              const fallback = target.parentElement?.querySelector(".fallback") as HTMLElement;
+              if (fallback) fallback.style.display = "flex";
+            }}
+          />
+        ) : null}
+
+        {/* Fallback for non-images or failed images */}
+        <div className={`fallback w-full h-full ${isImage ? "hidden" : "flex"} items-center justify-center`}>
+          <div className="text-center">
+            <DocumentIcon className="w-16 h-16 text-gray-400 mx-auto mb-2" />
+            <p className="text-xs text-gray-400 uppercase tracking-wider">{mimeType.split("/")[0]}</p>
+          </div>
+        </div>
+
+        {/* Status Badge */}
+        {isPending && (
+          <div className="absolute top-3 right-3 bg-yellow-500/90 text-yellow-900 text-xs font-medium px-2 py-1 rounded-full">
+            ⏳ New
+          </div>
+        )}
+      </div>
+
+      {/* Card Content */}
+      <div className="card-body p-4">
+        <h3 className="font-semibold text-white text-lg mb-2 line-clamp-2">{title}</h3>
+
+        <div className="flex items-center justify-between text-sm text-gray-400">
+          <div className="flex items-center space-x-2">
+            <Address address={submitter as `0x${string}`} format="short" />
+          </div>
+          <div className="text-xs">{new Date(Number(timestamp) * 1000).toLocaleDateString()}</div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="mt-4 flex space-x-2">
+          <button
+            type="button"
+            onClick={() => window.open(arweaveURI.replace("ar://", "https://arweave.net/"), "_blank")}
+            className="btn btn-sm bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white flex-1"
+          >
+            View
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function ArchiveDetailPage() {
   const params = useParams();
@@ -14,22 +125,61 @@ export default function ArchiveDetailPage() {
   const { address: connectedAddress } = useAccount();
   const archiveAddress = params?.address as string;
 
+  // Modal state for submit artifact
+  const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    title: "",
+    arweaveURI: "",
+    mimeType: "image/jpeg", // Default MIME type
+  });
+
   // Get the Archive contract instance for this specific address
   const { data: archiveContract } = useScaffoldContract({
     contractName: "Archive",
   });
 
-  // Archive basic information
+  // Test if we can call basic functions on this contract address
   const {
     data: archiveName,
     isLoading: nameLoading,
     error: nameError,
   } = useReadContract({
-    address: archiveAddress,
+    address: archiveAddress as `0x${string}`,
     abi: archiveContract?.abi,
     functionName: "name",
   });
 
+  console.log("DEBUG: Basic contract test");
+  console.log("archiveAddress:", archiveAddress);
+  console.log("archiveName:", archiveName);
+  console.log("nameError:", nameError);
+
+  // Let's try a different approach - check if there's a getTotalArtifacts function or try _nextId
+  const alternativeABI = [
+    {
+      type: "function",
+      name: "getTotalArtifacts",
+      inputs: [],
+      outputs: [{ name: "", type: "uint256", internalType: "uint256" }],
+      stateMutability: "view",
+    },
+  ] as const;
+
+  // Try getTotalArtifacts function
+  const { data: totalArtifacts } = useReadContract({
+    address: archiveAddress as `0x${string}`,
+    abi: alternativeABI,
+    functionName: "getTotalArtifacts",
+  });
+
+  console.log("DEBUG: Using getTotalArtifacts");
+  console.log("totalArtifacts:", totalArtifacts);
+
+  // Submit artifact function using writeContract directly
+  const { writeContractAsync } = useWriteContract();
+
+  // Archive basic information
   const { data: archiveDescription, isLoading: descriptionLoading } = useReadContract({
     address: archiveAddress,
     abi: archiveContract?.abi,
@@ -42,8 +192,12 @@ export default function ArchiveDetailPage() {
     functionName: "admin",
   });
 
-  // Archive statistics
-  const { data: archiveInfo, isLoading: infoLoading } = useReadContract({
+  // Use the same safe pattern as archiveName - we know this ABI works!
+  const {
+    data: archiveInfo,
+    isLoading: infoLoading,
+    refetch: refetchArchiveInfo,
+  } = useReadContract({
     address: archiveAddress,
     abi: archiveContract?.abi,
     functionName: "getArchiveInfo",
@@ -57,20 +211,96 @@ export default function ArchiveDetailPage() {
     args: [0n, 10n],
   });
 
-  // Pending artifacts (admin view)
-  const { data: pendingArtifacts, isLoading: pendingLoading } = useReadContract({
-    address: archiveAddress,
-    abi: archiveContract?.abi,
-    functionName: "getArtifactsByStatus",
-    args: [0, 50n], // Status.Pending, limit 50
-  });
+  // Calculate total artifacts consistently
+  const calculateTotalArtifacts = () => {
+    return totalArtifacts ? Number(totalArtifacts) : 0;
+  };
+
+  // Generate artifact IDs array
+  const totalArtifactsCount = calculateTotalArtifacts();
+  const artifactIds = totalArtifactsCount > 0 ? Array.from({ length: totalArtifactsCount }, (_, i) => i + 1) : [];
+
+  console.log("DEBUG: Final artifact calculation");
+  console.log("totalArtifactsCount:", totalArtifactsCount);
+  console.log("artifactIds:", artifactIds);
 
   // Loading states
   const isLoading = nameLoading || descriptionLoading || adminLoading || infoLoading || !archiveContract;
   const hasError = nameError || !archiveAddress;
 
+  // Archive contract ABI for submitArtifact function
+  const submitArtifactABI = [
+    {
+      type: "function",
+      name: "submitArtifact",
+      inputs: [
+        {
+          name: "_title",
+          type: "string",
+          internalType: "string",
+        },
+        {
+          name: "_arweaveURI",
+          type: "string",
+          internalType: "string",
+        },
+        {
+          name: "_mimeType",
+          type: "string",
+          internalType: "string",
+        },
+      ],
+      outputs: [
+        {
+          name: "id",
+          type: "uint256",
+          internalType: "uint250",
+        },
+      ],
+      stateMutability: "nonpayable",
+    },
+  ] as const;
+
   const handleBack = () => {
     router.push("/archives");
+  };
+
+  // Handle form input changes
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  // Submit artifact function
+  const handleSubmitArtifact = async () => {
+    if (!formData.title || !formData.arweaveURI || !formData.mimeType) {
+      notification.error("Please fill in all fields");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await writeContractAsync({
+        address: archiveAddress as `0x${string}`,
+        abi: submitArtifactABI,
+        functionName: "submitArtifact",
+        args: [formData.title, formData.arweaveURI, formData.mimeType],
+      });
+
+      notification.success("Artifact submitted successfully! It's now visible in the archive.");
+      setIsSubmitModalOpen(false);
+      setFormData({ title: "", arweaveURI: "", mimeType: "image/jpeg" });
+
+      // Refetch data to show the new submission
+      refetchArchiveInfo();
+    } catch (error) {
+      notification.error(`Error submitting artifact: ${(error as Error).message}`);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (hasError) {
@@ -109,8 +339,6 @@ export default function ArchiveDetailPage() {
     );
   }
 
-  const nextArtifactId = (archiveInfo as unknown as [bigint, bigint, bigint])?.[0] || 0n;
-  // const balance = (archiveInfo as unknown as [bigint, bigint, bigint])?.[1] || 0n; // Archive contract balance, unused for now
   const totalDonorCount = (archiveInfo as unknown as [bigint, bigint, bigint])?.[2] || 0n;
 
   return (
@@ -186,7 +414,7 @@ export default function ArchiveDetailPage() {
               <DocumentIcon className="w-8 h-8 text-purple-400 mr-3" />
               <div>
                 <h3 className="text-lg font-semibold text-white">Total Artifacts</h3>
-                <p className="text-purple-400 text-xl font-bold">{Number(nextArtifactId)}</p>
+                <p className="text-purple-400 text-xl font-bold">{totalArtifactsCount}</p>
               </div>
             </div>
           </div>
@@ -231,37 +459,6 @@ export default function ArchiveDetailPage() {
             )}
           </div>
 
-          {/* Admin Panel */}
-          {connectedAddress === admin && (
-            <div className="card bg-gray-800/50 backdrop-blur-xl border-red-500/20 border p-6">
-              <h3 className="text-xl font-semibold text-red-400 mb-4 flex items-center">
-                <DocumentIcon className="w-6 h-6 mr-2" />
-                Admin: Pending Artifacts
-              </h3>
-
-              {pendingLoading ? (
-                <div className="flex items-center justify-center py-8">
-                  <div className="loading loading-spinner loading-md text-red-400" />
-                </div>
-              ) : pendingArtifacts && Array.isArray(pendingArtifacts) && pendingArtifacts.length > 0 ? (
-                <div className="space-y-3">
-                  <p className="text-gray-300">
-                    {(pendingArtifacts as Array<unknown>).length} artifacts pending review
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => router.push(`/archive/${archiveAddress}/admin`)}
-                    className="btn btn-sm bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white"
-                  >
-                    Review Artifacts
-                  </button>
-                </div>
-              ) : (
-                <p className="text-gray-400 text-center py-8">No pending artifacts</p>
-              )}
-            </div>
-          )}
-
           {/* Public Artifacts View */}
           {connectedAddress !== admin && (
             <div className="card bg-gray-800/50 backdrop-blur-xl border-amber-500/20 border p-6">
@@ -272,8 +469,9 @@ export default function ArchiveDetailPage() {
 
               <div className="space-y-4">
                 <p className="text-gray-300">
-                  This archive contains {Number(nextArtifactId)} artifacts preserving digital heritage.
+                  This archive contains {totalArtifactsCount} artifacts preserving digital heritage.
                 </p>
+
                 <button
                   type="button"
                   onClick={() => router.push(`/archive/${archiveAddress}/artifacts`)}
@@ -284,6 +482,20 @@ export default function ArchiveDetailPage() {
               </div>
             </div>
           )}
+
+          {/* Archive Info */}
+          <div className="card bg-gray-800/50 backdrop-blur-xl border-amber-500/20 border p-6">
+            <h3 className="text-xl font-semibold text-amber-400 mb-4 flex items-center">
+              <DocumentIcon className="w-6 h-6 mr-2" />
+              Artifacts
+            </h3>
+
+            <div className="space-y-4">
+              <p className="text-gray-300">
+                This archive contains {totalArtifactsCount} artifacts preserving digital heritage.
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Action Buttons */}
@@ -298,13 +510,169 @@ export default function ArchiveDetailPage() {
 
           <button
             type="button"
-            onClick={() => router.push(`/archive/${archiveAddress}/submit`)}
+            onClick={() => setIsSubmitModalOpen(true)}
             className="btn bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-8"
           >
             Submit Artifact
           </button>
         </div>
+
+        {/* Artifacts Gallery - Visually Impressive for Hackathon */}
+        <div className="mt-12">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-2xl font-bold text-white">
+              <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                ✨ Artifacts Gallery
+              </span>
+            </h2>
+            <div className="flex items-center space-x-2 text-sm text-gray-400">
+              <DocumentIcon className="w-4 h-4" />
+              <span>{totalArtifactsCount} total artifacts</span>
+            </div>
+          </div>
+
+          {!totalArtifacts ? (
+            <div className="flex items-center justify-center py-16">
+              <div className="loading loading-spinner loading-lg text-purple-400" />
+            </div>
+          ) : artifactIds.length === 0 ? (
+            <div className="text-center py-16">
+              <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-full flex items-center justify-center">
+                <DocumentIcon className="w-12 h-12 text-purple-400" />
+              </div>
+              <h3 className="text-xl font-semibold text-white mb-2">No artifacts yet</h3>
+              <p className="text-gray-400 mb-6">Be the first to preserve a memory in this archive!</p>
+              <button
+                type="button"
+                onClick={() => setIsSubmitModalOpen(true)}
+                className="btn bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-8"
+              >
+                Submit First Artifact
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {artifactIds.map(artifactId => (
+                <ArtifactCard
+                  key={`artifact-${artifactId}`}
+                  artifactId={artifactId}
+                  archiveAddress={archiveAddress}
+                  archiveContract={archiveContract}
+                  isPending={false} // For hackathon demo, show all as visible
+                />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
+
+      {/* Submit Artifact Modal */}
+      {isSubmitModalOpen && (
+        <div className="fixed inset-0 bg-gray-900/75 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="card bg-gray-800 border-amber-500/20 border max-w-md w-full">
+            <div className="card-body">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold text-amber-400">Submit New Artifact</h2>
+                <button
+                  type="button"
+                  onClick={() => setIsSubmitModalOpen(false)}
+                  className="btn btn-ghost btn-sm btn-circle"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                {/* Title Input */}
+                <div>
+                  <label htmlFor="title" className="label">
+                    <span className="label-text text-gray-300">Title *</span>
+                  </label>
+                  <input
+                    id="title"
+                    name="title"
+                    type="text"
+                    placeholder="Enter artifact title..."
+                    value={formData.title}
+                    onChange={handleInputChange}
+                    className="input input-bordered w-full bg-gray-700 border-gray-600 focus:border-amber-500 text-white"
+                    required
+                  />
+                </div>
+
+                {/* Arweave URI Input */}
+                <div>
+                  <label htmlFor="arweaveURI" className="label">
+                    <span className="label-text text-gray-300">Arweave URI *</span>
+                  </label>
+                  <input
+                    id="arweaveURI"
+                    name="arweaveURI"
+                    type="url"
+                    placeholder="ar://..."
+                    value={formData.arweaveURI}
+                    onChange={handleInputChange}
+                    className="input input-bordered w-full bg-gray-700 border-gray-600 focus:border-amber-500 text-white"
+                    required
+                  />
+                </div>
+
+                {/* MIME Type Select */}
+                <div>
+                  <label htmlFor="mimeType" className="label">
+                    <span className="label-text text-gray-300">File Type *</span>
+                  </label>
+                  <select
+                    id="mimeType"
+                    name="mimeType"
+                    value={formData.mimeType}
+                    onChange={handleInputChange}
+                    className="select select-bordered w-full bg-gray-700 border-gray-600 focus:border-amber-500 text-white"
+                  >
+                    <option value="image/jpeg">Image (JPEG)</option>
+                    <option value="image/png">Image (PNG)</option>
+                    <option value="image/gif">Image (GIF)</option>
+                    <option value="video/mp4">Video (MP4)</option>
+                    <option value="audio/mpeg">Audio (MP3)</option>
+                    <option value="audio/wav">Audio (WAV)</option>
+                    <option value="application/pdf">Document (PDF)</option>
+                    <option value="text/plain">Text File</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex justify-end space-x-3 mt-6">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsSubmitModalOpen(false);
+                    setFormData({ title: "", arweaveURI: "", mimeType: "image/jpeg" });
+                  }}
+                  className="btn btn-ghost text-gray-400 hover:text-white"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSubmitArtifact}
+                  className="btn bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white"
+                  disabled={isSubmitting || !formData.title || !formData.arweaveURI}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <span className="loading loading-spinner loading-sm mr-2" />
+                      Submitting...
+                    </>
+                  ) : (
+                    "Submit Artifact"
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
