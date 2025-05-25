@@ -1,6 +1,4 @@
 {
   "installCommand": "cd ../.. && yarn install",
-  "buildCommand": "cd ../.. && yarn workspace @se-2/nextjs build",
-  "framework": "nextjs",
-  "outputDirectory": "packages/nextjs/.next"
+  "buildCommand": "cd ../.. && yarn workspace @se-2/nextjs build"
 }
