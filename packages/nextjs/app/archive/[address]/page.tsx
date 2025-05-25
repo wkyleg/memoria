@@ -3,10 +3,11 @@
 import type React from "react";
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { parseEther } from "viem";
 import { useAccount } from "wagmi";
 import { useReadContract, useWriteContract } from "wagmi";
 import { ArrowLeftIcon, CurrencyDollarIcon, DocumentIcon, UsersIcon } from "@heroicons/react/24/outline";
-import { Address, Balance } from "~~/components/scaffold-eth";
+import { Address, Balance, EtherInput } from "~~/components/scaffold-eth";
 import { useScaffoldContract } from "~~/hooks/scaffold-eth";
 import { notification } from "~~/utils/scaffold-eth";
 
@@ -134,6 +135,12 @@ export default function ArchiveDetailPage() {
     mimeType: "image/jpeg", // Default MIME type
   });
 
+  // Modal state for donation
+  const [isDonateModalOpen, setIsDonateModalOpen] = useState(false);
+  const [isDonating, setIsDonating] = useState(false);
+  const [donationAmount, setDonationAmount] = useState("");
+  const [donationMessage, setDonationMessage] = useState("");
+
   // Get the Archive contract instance for this specific address
   const { data: archiveContract } = useScaffoldContract({
     contractName: "Archive",
@@ -204,7 +211,11 @@ export default function ArchiveDetailPage() {
   });
 
   // Recent donors (get first 10)
-  const { data: donors, isLoading: donorsLoading } = useReadContract({
+  const {
+    data: donors,
+    isLoading: donorsLoading,
+    refetch: refetchDonors,
+  } = useReadContract({
     address: archiveAddress,
     abi: archiveContract?.abi,
     functionName: "getDonors",
@@ -296,10 +307,48 @@ export default function ArchiveDetailPage() {
 
       // Refetch data to show the new submission
       refetchArchiveInfo();
+      refetchDonors();
     } catch (error) {
       notification.error(`Error submitting artifact: ${(error as Error).message}`);
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  // Handle donation
+  const handleDonate = async () => {
+    if (!donationAmount || Number.parseFloat(donationAmount) <= 0) {
+      notification.error("Please enter a valid donation amount");
+      return;
+    }
+
+    if (!archiveContract?.abi) {
+      notification.error("Archive contract not loaded");
+      return;
+    }
+
+    setIsDonating(true);
+    try {
+      await writeContractAsync({
+        address: archiveAddress as `0x${string}`,
+        abi: archiveContract.abi as readonly unknown[],
+        functionName: "receiveDonation",
+        args: [donationMessage || "Anonymous donation"],
+        value: parseEther(donationAmount) as any,
+      });
+
+      notification.success("Thank you for your donation! Your support helps preserve digital heritage.");
+      setIsDonateModalOpen(false);
+      setDonationAmount("");
+      setDonationMessage("");
+
+      // Refetch data to show updated balance and donor info
+      refetchArchiveInfo();
+      refetchDonors();
+    } catch (error) {
+      notification.error(`Error processing donation: ${(error as Error).message}`);
+    } finally {
+      setIsDonating(false);
     }
   };
 
@@ -435,19 +484,21 @@ export default function ArchiveDetailPage() {
               </div>
             ) : donors && Array.isArray(donors) && donors.length > 0 ? (
               <div className="space-y-4">
-                {(donors as Array<{ addr: `0x${string}`; totalDonated: bigint; donationCount: bigint }>).map(
-                  (donor, index) => {
+                {(donors as Array<{ donor: `0x${string}`; totalDonated: bigint; donationCount: bigint }>).map(
+                  (donorInfo, index) => {
                     return (
                       <div
-                        key={`donor-${donor.addr}-${index}`}
+                        key={`donor-${donorInfo.donor}-${index}`}
                         className="flex items-center justify-between p-3 bg-gray-700/50 rounded-lg"
                       >
                         <div className="flex items-center">
-                          <Address address={donor.addr} />
+                          <Address address={donorInfo.donor} />
                         </div>
                         <div className="text-right">
-                          <Balance address={donor.addr} className="text-green-400 font-semibold" />
-                          <p className="text-xs text-gray-400">{Number(donor.donationCount)} donations</p>
+                          <div className="text-green-400 font-semibold">
+                            {(Number(donorInfo.totalDonated) / 1e18).toFixed(4)} ETH
+                          </div>
+                          <p className="text-xs text-gray-400">{Number(donorInfo.donationCount)} donations</p>
                         </div>
                       </div>
                     );
@@ -502,10 +553,10 @@ export default function ArchiveDetailPage() {
         <div className="flex justify-center mt-8 space-x-4">
           <button
             type="button"
-            onClick={() => router.push(`/archive/${archiveAddress}/donate`)}
+            onClick={() => setIsDonateModalOpen(true)}
             className="btn bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-8"
           >
-            Support This Archive
+            Donate To This Archive
           </button>
 
           <button
@@ -666,6 +717,89 @@ export default function ArchiveDetailPage() {
                     </>
                   ) : (
                     "Submit Artifact"
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Donation Modal */}
+      {isDonateModalOpen && (
+        <div className="fixed inset-0 bg-gray-900/75 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="card bg-gray-800 border-green-500/20 border max-w-md w-full">
+            <div className="card-body">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold text-green-400">Donate to Archive</h2>
+                <button
+                  type="button"
+                  onClick={() => setIsDonateModalOpen(false)}
+                  className="btn btn-ghost btn-sm btn-circle"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                {/* Donation Amount Input */}
+                <div>
+                  <label htmlFor="donationAmount" className="label">
+                    <span className="label-text text-gray-300">Donation Amount (ETH) *</span>
+                  </label>
+                  <EtherInput value={donationAmount} onChange={setDonationAmount} placeholder="0.1" />
+                </div>
+
+                {/* Optional Message */}
+                <div>
+                  <label htmlFor="donationMessage" className="label">
+                    <span className="label-text text-gray-300">Message (Optional)</span>
+                  </label>
+                  <input
+                    id="donationMessage"
+                    type="text"
+                    placeholder="Leave a message with your donation..."
+                    value={donationMessage}
+                    onChange={e => setDonationMessage(e.target.value)}
+                    className="input input-bordered w-full bg-gray-700 border-gray-600 focus:border-green-500 text-white"
+                  />
+                </div>
+
+                {/* Info Text */}
+                <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-4">
+                  <p className="text-sm text-green-300">
+                    💚 Your donation helps fund rewards for contributors and supports the preservation of digital
+                    heritage.
+                  </p>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex justify-end space-x-3 mt-6">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsDonateModalOpen(false);
+                    setDonationAmount("");
+                    setDonationMessage("");
+                  }}
+                  className="btn btn-ghost text-gray-400 hover:text-white"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDonate}
+                  className="btn bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white"
+                  disabled={isDonating || !donationAmount || Number.parseFloat(donationAmount) <= 0}
+                >
+                  {isDonating ? (
+                    <>
+                      <span className="loading loading-spinner loading-sm mr-2" />
+                      Processing...
+                    </>
+                  ) : (
+                    "Donate ETH"
                   )}
                 </button>
               </div>
