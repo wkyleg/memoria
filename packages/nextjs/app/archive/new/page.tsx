@@ -4,6 +4,7 @@ import type React from "react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
+import { FileUpload } from "~~/components/scaffold-eth/FileUpload";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 
 type ArchiveType = {
@@ -122,13 +123,19 @@ export default function CreateArchivePage() {
                 <label htmlFor="illustration" className="text-gray-300 mb-3 block">
                   Illustration *
                 </label>
-                <input
-                  type="url"
-                  id="illustration"
-                  name="illustration"
-                  className="input rounded-md bg-gray-800/50 border-amber-500/30 focus:border-amber-500/50 text-white placeholder-gray-400"
-                  onChange={handleInputChange}
-                />
+
+                {formData.illustration ? (
+                  formData.illustration
+                ) : (
+                  <FileUpload
+                    onSuccess={({ arweaveUrl }: { arweaveUrl: string }) => {
+                      setFormData({
+                        ...formData,
+                        illustration: arweaveUrl,
+                      });
+                    }}
+                  />
+                )}
               </div>
 
               {/* Submit Buttons */}
@@ -143,7 +150,8 @@ export default function CreateArchivePage() {
 
                 <button
                   type="submit"
-                  className="btn btn-lg bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-gray-900 font-semibold px-8 py-4"
+                  className="btn btn-lg bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-gray-900 font-semibold px-8 py-4 disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={!formData.title || !formData.description || !formData.illustration}
                 >
                   Create
                 </button>
