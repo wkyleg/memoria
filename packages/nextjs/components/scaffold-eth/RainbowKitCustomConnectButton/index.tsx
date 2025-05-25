@@ -34,7 +34,7 @@ export const RainbowKitCustomConnectButton = () => {
               }
 
               return (
-                <Link href="/archives/new">
+                <Link href="/archive/new">
                   <button className="btn btn-lg bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-gray-900 font-semibold px-8 py-4 text-">
                     Create Archive
                     <ArrowRightIcon className="w-5 h-5 ml-2" />

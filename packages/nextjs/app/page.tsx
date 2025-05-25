@@ -50,7 +50,7 @@ const Home: NextPage = () => {
                   <ArrowRightIcon className="w-5 h-5 ml-2" />
                 </button>
               </Link>
-              <Link href="/archives">
+              <Link href="/archive">
                 <button className="btn btn-lg border-amber-500/30 text-amber-400 hover:bg-amber-500/10 px-8 py-4 text-lg">
                   Explore Archives
                 </button>

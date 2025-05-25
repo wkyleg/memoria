@@ -920,6 +920,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@coinbase/wallet-sdk@npm:^4.3.2":
+  version: 4.3.2
+  resolution: "@coinbase/wallet-sdk@npm:4.3.2"
+  dependencies:
+    "@noble/hashes": ^1.4.0
+    clsx: ^1.2.1
+    eventemitter3: ^5.0.1
+    preact: ^10.24.2
+  checksum: 85c4c0db5c4b5daf1d5b049df5b053d76590aa6c490601d734637209384905e0f1cbd8a800d62fd21bda61da015bb4e8247b4007c6ce34d4911ac2e2ce25ab03
+  languageName: node
+  linkType: hard
+
 "@cspotcode/source-map-support@npm:^0.8.0":
   version: 0.8.1
   resolution: "@cspotcode/source-map-support@npm:0.8.1"
@@ -13800,6 +13812,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "se-2@workspace:."
   dependencies:
+    "@coinbase/wallet-sdk": ^4.3.2
     arweave: ^1.15.7
     husky: ~9.1.6
     lint-staged: ~13.2.2
