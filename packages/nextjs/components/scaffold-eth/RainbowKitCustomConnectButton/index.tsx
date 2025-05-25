@@ -23,7 +23,11 @@ export const RainbowKitCustomConnectButton = () => {
             {(() => {
               if (!connected) {
                 return (
-                  <button className="btn btn-primary btn-sm" onClick={openConnectModal} type="button">
+                  <button
+                    className="btn btn-lg bg-white/25  text-black border-0"
+                    onClick={openConnectModal}
+                    type="button"
+                  >
                     Connect Wallet
                   </button>
                 );
@@ -35,7 +39,7 @@ export const RainbowKitCustomConnectButton = () => {
 
               return (
                 <Link href="/archive/new">
-                  <button className="btn btn-lg bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-gray-900 font-semibold px-8 py-4 text-">
+                  <button className="btn btn-lg  bg-white/25 text-black border-0">
                     Create Archive
                     <ArrowRightIcon className="w-5 h-5 ml-2" />
                   </button>

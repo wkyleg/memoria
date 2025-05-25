@@ -3,14 +3,6 @@ import { ScaffoldEthAppWithProviders } from "~~/components/ScaffoldEthAppWithPro
 import { ThemeProvider } from "~~/components/ThemeProvider";
 import "~~/styles/globals.css";
 
-export const metadata = {
-  title: "Memoria",
-  description: "Preserve Cultural Memories Forever",
-  icons: {
-    icon: "/favicon.ico",
-  },
-};
-
 const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
   return (
     <html suppressHydrationWarning>
