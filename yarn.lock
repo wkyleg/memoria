@@ -6433,7 +6433,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"arweave@npm:^1.10.13":
+"arweave@npm:^1.10.13, arweave@npm:^1.15.7":
   version: 1.15.7
   resolution: "arweave@npm:1.15.7"
   dependencies:
@@ -13800,6 +13800,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "se-2@workspace:."
   dependencies:
+    arweave: ^1.15.7
     husky: ~9.1.6
     lint-staged: ~13.2.2
     next: ^15.3.2
