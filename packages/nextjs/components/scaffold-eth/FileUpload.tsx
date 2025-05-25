@@ -6,13 +6,9 @@ import { useState } from "react";
  * Component that accept a file input and upload it to /api/media-upload
  */
 export const FileUpload = ({ onSuccess }: { onSuccess: (data: any) => void }) => {
-  const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
 
-  const handleUpload = async () => {
-    if (!file) {
-      return;
-    }
+  const handleUpload = async (file: File) => {
     setUploading(true);
     const formData = new FormData();
     formData.append("file", file);
@@ -29,13 +25,20 @@ export const FileUpload = ({ onSuccess }: { onSuccess: (data: any) => void }) =>
 
     setUploading(false);
   };
+
   return (
-    <div>
-      <input type="file" onChange={e => setFile(e.target.files?.[0] || null)} />
-      <button onClick={handleUpload} disabled={!file || uploading}>
-        Upload
-      </button>
-      {uploading && <p>Uploading...</p>}
+    <div className="flex justify-center">
+      <label className="cursor-pointer bg-black text-white font-semibold text-base px-8 py-3 rounded-full text-center inline-block relative">
+        {uploading ? "Uploading..." : "Upload image"}
+        <input
+          type="file"
+          onChange={e => {
+            const file = e.target.files?.[0];
+            if (file) handleUpload(file);
+          }}
+          className="absolute inset-0 opacity-0 cursor-pointer"
+        />
+      </label>
     </div>
   );
 };
